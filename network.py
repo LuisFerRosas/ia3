@@ -39,13 +39,13 @@ class TextDecode(nn.Module):
         self.embeding=TokenEmbedding(vocab_size,emb_size)
         self.positional_encoding=PositionalEncoding(emb_size=emb_size,dropout=dropout)
         self.generator = nn.Linear(emb_size, vocab_size)
-        self.stop_linear = nn.Sigmoid()
+        
         
     def forward(self,memory,caracters,pos_text,text_mask,text_padding_mask,memory_key_padding_mask):
         text=self.positional_encoding(self.embeding(pos_text))+caracters
         outs = self.transformer_decoder(text, memory, text_mask, None,text_padding_mask, memory_key_padding_mask)
         outs=self.generator(outs)
-        outs=self.stop_linear(outs)
+        
         return outs
         
         
