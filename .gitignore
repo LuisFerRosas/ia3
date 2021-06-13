@@ -1,0 +1,20 @@
+# Compiled stuff
+*.pyc
+/__pycache__
+__pycache__/
+
+# IDE stuff
+/.idea
+.idea/
+
+# Figures
+figures/
+/figures
+*.png
+
+# Audio output
+audio/
+/audio
+*.wav
+dataset audio/
+datos/
