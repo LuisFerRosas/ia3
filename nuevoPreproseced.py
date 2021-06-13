@@ -215,4 +215,5 @@ if __name__ == '__main__':
     #     mappings = json.load(fp)
     # partedeco = sequence_partitura("datos/partituras/1.xml",mappings)
     # print(partedeco)
-    guardarVocabulario(pathPartituras="datos/partituras",pathSave="datos/")
+    # guardarVocabulario(pathPartituras="datos/partituras",pathSave="datos/")
+    pass
