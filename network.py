@@ -61,7 +61,7 @@ class ModelTransformer(nn.Module):
         self.decoder = TextDecode(emb_size,NHEAD,num_decoder_layers,vocab_size)
 
     def forward(self, characters, mel_input, pos_text, pos_mel):
-        mel_mask, text_mask, mel_padding_mask, tex_padding_mask=create_mask(pos_mel,pos_text)
+        mel_mask, text_mask, mel_padding_mask, tex_padding_mask=create_mask(pos_mel,pos_text,0)
         memory, = self.encoder.forward(mel_input,pos_mel,mel_mask,mel_padding_mask)
         outs = self.decoder.forward(memory,characters,pos_text,text_mask,tex_padding_mask,mel_padding_mask)
 
