@@ -17,7 +17,7 @@ class MelEncoder(nn.Module):
         self.positional_encoding=PositionalEncoding(emb_size=embedding_size,dropout=dropout)
         
         self.encoder_prenet = Prenet(hp.num_mels, num_hidden * 2, num_hidden, p=0.2)
-        self.norm = Linear(num_hidden, num_hidden)
+        self.norm = Linear(num_hidden, num_hidden*2)
         
         
     
