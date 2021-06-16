@@ -31,7 +31,7 @@ def main():
 
 
 
-    writer = SummaryWriter()
+    # writer = SummaryWriter()
 
     for epoch in range(NUM_EPOCHS):
         dataloader = DataLoader(dataset, batch_size=hp.batch_size, collate_fn=collate_fn_transformer, drop_last=True, )
