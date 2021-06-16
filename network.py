@@ -22,11 +22,22 @@ class MelEncoder(nn.Module):
         
     
     def forward(self, mel_input, pos_mel,mel_mask,mel_padding_mask):
-        
+        print("1.......")
+        print(mel_input.shape)
         mel_input=self.encoder_prenet(mel_input)
+        print("2.......")
+        print(mel_input.shape)
         mel_input=self.norm(mel_input)
+        print("3.......")
+        print(mel_input.shape)
+        print("pos_mel.......")
+        print(pos_mel.shape)
         mel_input=self.positional_encoding(self.embeding(pos_mel))+mel_input
+        print("4.......")
+        print(mel_input.shape)
+        
         memory=self.transformer_encoder(mel_input,mel_mask,mel_padding_mask)
+        print(memory.shape)
         
         return memory
     
@@ -42,9 +53,19 @@ class TextDecode(nn.Module):
         
         
     def forward(self,memory,caracters,pos_text,text_mask,text_padding_mask,memory_key_padding_mask):
+        print("De..memory.......")
+        print(memory.shape)
+        print("pos_text")
+        print(pos_text.shape)
         text=self.positional_encoding(self.embeding(pos_text))+caracters
+        print("text........")
+        print(text.shape)
         outs = self.transformer_decoder(text, memory, text_mask, None,text_padding_mask, memory_key_padding_mask)
+        print("salida Deco.....")
+        print(outs.shape)
         outs=self.generator(outs)
+        print("salida final...")
+        print(outs.shape)
         
         return outs
         
@@ -63,6 +84,8 @@ class ModelTransformer(nn.Module):
     def forward(self, characters, mel_input, pos_text, pos_mel):
         mel_mask, text_mask, mel_padding_mask, tex_padding_mask=create_mask(pos_mel,pos_text,0)
         memory, = self.encoder(mel_input,pos_mel,mel_mask,mel_padding_mask)
+        print("//////////////////////////////////////")
+        print(memory)
         outs = self.decoder(memory,characters,pos_text,text_mask,tex_padding_mask,mel_padding_mask)
 
         return outs   
