@@ -35,31 +35,43 @@ class MelEncoder(nn.Module):
         mel_input=self.positional_encoding(self.embeding(pos_mel))+mel_input
         print("4.......")
         print(mel_input.shape)
-        
+        mel_input=mel_input.transpose(0,1)
+        print("5.......")
+        print(mel_input.shape)
+        print("mel_mask ........"+str(mel_mask.shape))
+        print("mel_padding_mask........"+str(mel_padding_mask.shape))
         memory=self.transformer_encoder(mel_input,mel_mask,mel_padding_mask)
-        print(memory.shape)
+        print("transformer salidad ..."+str(memory.shape))
         
         return memory
     
 class TextDecode(nn.Module):
-    def __init__(self,emb_size,NHEAD,num_decoder_layers,vocab_size,dim_feedforward:int = 512, dropout:float = 0.1):
+    def __init__(self,emb_size,NHEAD,num_decoder_layers,maxlen,vocab_size,dim_feedforward:int = 512, dropout:float = 0.1):
         super(TextDecode, self).__init__()
         decoder_layer = TransformerDecoderLayer(d_model=emb_size, nhead=NHEAD,
                                                 dim_feedforward=dim_feedforward)
         self.transformer_decoder = TransformerDecoder(decoder_layer, num_layers=num_decoder_layers)
-        self.embeding=TokenEmbedding(vocab_size,emb_size)
+        self.embeding=TokenEmbedding(maxlen,emb_size)
         self.positional_encoding=PositionalEncoding(emb_size=emb_size,dropout=dropout)
         self.generator = nn.Linear(emb_size, vocab_size)
         
         
     def forward(self,memory,caracters,pos_text,text_mask,text_padding_mask,memory_key_padding_mask):
+        
         print("De..memory.......")
         print(memory.shape)
         print("pos_text")
         print(pos_text.shape)
-        text=self.positional_encoding(self.embeding(pos_text))+caracters
+        embtext= self.embeding(pos_text)
+        print("EmbText ........."+str(embtext.shape))
+        embCaracter= self.embeding(caracters)
+        print("EmbCaracter ........."+str(embCaracter.shape))
+        
+        text=self.positional_encoding(embtext)+self.embeding(caracters)
         print("text........")
         print(text.shape)
+        text=text.transpose(0,1)
+        print("textTranspose .."+str(text.shape))
         outs = self.transformer_decoder(text, memory, text_mask, None,text_padding_mask, memory_key_padding_mask)
         print("salida Deco.....")
         print(outs.shape)
@@ -75,17 +87,20 @@ class ModelTransformer(nn.Module):
     """
     Transformer Network
     """
-    def __init__(self,emb_size,NHEAD,num_decoder_layers,vocab_size,posmel_size,num_hidden,num_encoder_layers):
+    def __init__(self,emb_size,NHEAD,num_decoder_layers,vocab_size,posmel_size,num_hidden,num_encoder_layers,maxlen):
         super(ModelTransformer, self).__init__()
         self.encoder = MelEncoder(embedding_size=emb_size,posmel_size=posmel_size,num_hidden=num_hidden,NHEAD=NHEAD,
                                   num_encoder_layers=num_encoder_layers)
-        self.decoder = TextDecode(emb_size,NHEAD,num_decoder_layers,vocab_size)
+        self.decoder = TextDecode(emb_size,NHEAD,num_decoder_layers,maxlen,vocab_size)
 
     def forward(self, characters, mel_input, pos_text, pos_mel):
-        mel_mask, text_mask, mel_padding_mask, tex_padding_mask=create_mask(pos_mel,pos_text,0)
-        memory, = self.encoder(mel_input,pos_mel,mel_mask,mel_padding_mask)
+        pos_mel2=pos_mel.transpose(0,1)#[1590,3]
+        pos_text2=pos_text.transpose(0,1)#[]
+        mel_mask, text_mask, mel_padding_mask, tex_padding_mask=create_mask(pos_mel2,pos_text2,0)
+        
+        memory = self.encoder(mel_input,pos_mel,mel_mask,mel_padding_mask)
         print("//////////////////////////////////////")
-        print(memory)
+        # print(memory)
         outs = self.decoder(memory,characters,pos_text,text_mask,tex_padding_mask,mel_padding_mask)
 
         return outs   
@@ -119,21 +134,3 @@ class TokenEmbedding(nn.Module):
         return self.embedding(tokens.long()) * math.sqrt(self.emb_size)
     
  
-
-class ModelPostNet(nn.Module):
-    """
-    CBHG Network (mel --> linear)
-    """
-    def __init__(self):
-        super(ModelPostNet, self).__init__()
-        self.pre_projection = Conv(hp.n_mels, hp.hidden_size)
-        self.cbhg = CBHG(hp.hidden_size)
-        self.post_projection = Conv(hp.hidden_size, (hp.n_fft // 2) + 1)
-
-    def forward(self, mel):
-        mel = mel.transpose(1, 2)
-        mel = self.pre_projection(mel)
-        mel = self.cbhg(mel).transpose(1, 2)
-        mag_pred = self.post_projection(mel).transpose(1, 2)
-
-        return mag_pred

@@ -18,16 +18,15 @@ if __name__ == '__main__':
         
         character, mel, mel_input, pos_text, pos_mel, _ = data
         mel_mask, text_mask, mel_padding_mask, text_padding_mask=create_mask(pos_mel,character,0)
-        # print("Caracter ////////////////")
-        # print(character.transpose(1, 2))#[3,47]
-        # print("mel ////////////////")
-        # print(mel.shape)
-        # melEmb=nn.Embedding(56,512)
-        # dato=melEmb(mel)
-        # print("mel_input ////////////////")
-        # print(mel_input.shape)
-        # print("pos_text ////////////////")
-        # print(pos_text.eq(0).unsqueeze(1).repeat(1, character.size(1), 1).shape)
+        print("Caracter ////////////////")
+        print(character.shape)#[3,47]
+        print("mel ////////////////")
+        print(mel.shape)#[3,1590,80]
+        
+        print("mel_input ////////////////")
+        print(mel_input.shape)
+        print("pos_text ////////////////"+str(pos_text.shape))#[3,47]
+        print(pos_text.eq(0).unsqueeze(1).repeat(1, character.size(1), 1).shape)
         print("pos_mel ////////////////")
         print(pos_mel.shape)#[3,1590]
         # print("_ ////////////////")
