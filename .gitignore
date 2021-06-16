@@ -13,8 +13,7 @@ figures/
 *.png
 
 # Audio output
-audio/
-/audio
-*.wav
+
+
 dataset audio/
 runs/
