@@ -63,6 +63,7 @@ def main():
             optimizer.zero_grad()
             loss = loss_fn(output.reshape(-1, output.shape[-1]), character.reshape(-1))
             output=output.transpose(0,1)
+            loss=loss.items()
             writer.add_scalar("loss :",loss ,estep)
             # print("/////////////////")
             # print(np.argmax(output[0].detach().numpy(),axis=1))
@@ -71,7 +72,7 @@ def main():
             
             loss.backward()
             optimizer.step()
-            losses += loss
+            losses += loss.items()
         writer.add_scalar("loss2 :",losses ,epoch)
         if epoch % hp.save_step==0:
             t.save({'model':modelo.state_dict(),
