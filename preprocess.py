@@ -49,29 +49,7 @@ class DatasetsCompleto(Dataset):
 
         return sample
     
-class PostDatasets(Dataset):
-    """LJSpeech dataset."""
 
-    def __init__(self, csv_file, root_dir):
-        """
-        Args:
-            csv_file (string): Path to the csv file with annotations.
-            root_dir (string): Directory with all the wavs.
-
-        """
-        self.nombreAudios = pd.read_csv(csv_file, sep='|', header=None)
-        self.root_dir = root_dir
-
-    def __len__(self):
-        return len(self.nombreAudios)
-
-    def __getitem__(self, idx):
-        wav_name = os.path.join(self.root_dir, self.nombreAudios.ix[idx, 0]) + '.wav'
-        mel = np.load(wav_name[:-4] + '.pt.npy')
-        mag = np.load(wav_name[:-4] + '.mag.npy')
-        sample = {'mel':mel, 'mag':mag}
-
-        return sample
     
 def collate_fn_transformer(batch):
 
@@ -129,10 +107,6 @@ def _prepare_data(inputs):
     max_len = max((len(x) for x in inputs))
     return np.stack([_pad_data(x, max_len) for x in inputs])
 
-def _pad_per_step(inputs):
-    timesteps = inputs.shape[-1]
-    return np.pad(inputs, [[0,0],[0,0],[0, hp.outputs_per_step - (timesteps % hp.outputs_per_step)]], mode='constant', constant_values=0.0)
-
 def get_param_size(model):
     params = 0
     for p in model.parameters():
@@ -145,8 +119,7 @@ def get_param_size(model):
 def get_dataset():
     return DatasetsCompleto(hp.path_audio,hp.path_partituras,hp.path_vocabularioPartitura,hp.path_audio_procesado)
 
-def get_post_dataset():
-    return PostDatasets(os.path.join(hp.data_path,'metadata.csv'), os.path.join(hp.data_path,'wavs'))
+
 
 def _pad_mel(inputs):
     _pad = 0

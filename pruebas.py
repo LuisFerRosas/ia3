@@ -19,7 +19,7 @@ if __name__ == '__main__':
         character, mel, mel_input, pos_text, pos_mel, _ = data
         mel_mask, text_mask, mel_padding_mask, text_padding_mask=create_mask(pos_mel,character,0)
         print("Caracter ////////////////")
-        print(character.shape)#[3,47]
+        print(character)#[3,47]
         print("mel ////////////////")
         print(mel.shape)#[3,1590,80]
         

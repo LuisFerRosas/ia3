@@ -5,7 +5,7 @@ import librosa
 import numpy as np
 from scipy.signal.signaltools import resample
 from scipy.io.wavfile import write
-
+import sys
 DATASETPATH="dataset audio"
 
 # for root, dirs, files in os.walk("dataset audio/",topdown=False ):
@@ -96,7 +96,16 @@ def load_partituras(dataset_path):
             if file[-3:] == "xml":
                 print(file)
                 nombres.append(file)
-                song = m21.converter.parse(os.path.join(path, file))
+                try:
+                    song = m21.converter.parse(os.path.join(path, file))
+                except OSError as err:
+                    print("OS error: {0}".format(err))
+                except ValueError:
+                    print("Could not convert data to an integer.")
+                except:
+                    print("Unexpected error:", sys.exc_info()[0])
+                    
+                
                 songs.append(song)
     return songs,nombres
 
@@ -215,5 +224,5 @@ if __name__ == '__main__':
     #     mappings = json.load(fp)
     # partedeco = sequence_partitura("datos/partituras/1.xml",mappings)
     # print(partedeco)
-    # guardarVocabulario(pathPartituras="datos/partituras",pathSave="datos/")
-    pass
+    guardarVocabulario(pathPartituras="datos/partituras",pathSave="datos/")
+    
