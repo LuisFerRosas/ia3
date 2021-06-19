@@ -28,7 +28,7 @@ outputs_per_step = 1
 
 epochs = 10000
 lr = 0.001
-save_step = 2000
+save_step = 25
 
 batch_size = 3
 
