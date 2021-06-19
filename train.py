@@ -53,8 +53,8 @@ def main():
            
             output=modelo(character,mel_input,pos_text,pos_mel)
             # print(output)
-            if estep==1:
-                writer.add_graph(modelo)
+            # if estep==1:
+            #     writer.add_graph(modelo)
             
             
             # print("output modelo...."+str(output.shape))
