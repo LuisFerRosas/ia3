@@ -9,7 +9,7 @@ import hyperparams as hp
 NHEAD=8
 num_decoder_layer=6
 num_encoder_layer=6
-vocab=57
+vocab=121
 post_mel_size=2000
 num_hidden=hp.hidden_size
 maxlen=100
