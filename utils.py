@@ -153,3 +153,8 @@ def create_mask(src, tgt,PAD_IDX):
   src_padding_mask = (src == PAD_IDX).transpose(0, 1)
   tgt_padding_mask = (tgt == PAD_IDX).transpose(0, 1)
   return src_mask, tgt_mask, src_padding_mask, tgt_padding_mask
+
+def load_checkpoint(checkpoint, model, optimizer):
+    print("=> Loading checkpoint")
+    model.load_state_dict(checkpoint["state_dict"])
+    optimizer.load_state_dict(checkpoint["optimizer"])

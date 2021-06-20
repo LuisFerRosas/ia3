@@ -11,7 +11,7 @@ def generarDatos(dataset_path):
             if file[-3:] == "wav":
                 mel, mag =get_spectrograms(os.path.join(dataset_path,file) )
                 np.save("datos/audioProcesado/"+file[:-4] + '.pt', mel)
-                np.save("datos/audioProcesado/"+file[:-4] + '.mag', mag)
+                # np.save("datos/audioProcesado/"+file[:-4] + '.mag', mag)
 
 
 

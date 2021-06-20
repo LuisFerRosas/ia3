@@ -1,11 +1,13 @@
 from preprocess import get_dataset, DataLoader, collate_fn_transformer
 from network import *
-# from tensorboardX import SummaryWriter
-from torch.utils.tensorboard import SummaryWriter
-import sys
+from utils import load_checkpoint
+
+from tensorboardX import SummaryWriter
 import os
 from tqdm import tqdm
 import hyperparams as hp
+
+load_model = True
 NHEAD=8
 num_decoder_layer=6
 num_encoder_layer=6
@@ -22,30 +24,29 @@ loss_fn = torch.nn.CrossEntropyLoss(ignore_index=0)
 optimizer = torch.optim.Adam(
     modelo.parameters(), lr=0.0001, betas=(0.9, 0.98), eps=1e-9
 )
+checkpoint_path = './checkpoint/checkpoint_transformer_75.pth.tar'
 
-
-
-
+if load_model:
+    load_checkpoint(torch.load(checkpoint_path), modelo, optimizer)
 
 
 def main():
     dataset=get_dataset()
 
 
-
+    modelo.train()
     writer = SummaryWriter("runs/tranformer")
    
     estep=0
     for epoch in range(NUM_EPOCHS):
-        dataloader = DataLoader(dataset, batch_size=hp.batch_size, collate_fn=collate_fn_transformer, drop_last=True, )
+        dataloader = DataLoader(dataset, batch_size=hp.batch_size, collate_fn=collate_fn_transformer, drop_last=True,shuffle=True )
         pbar = tqdm(dataloader)
         losses = 0
         for i, data in enumerate(pbar):
             estep=estep+1
             pbar.set_description("Processing at epoch %d"%epoch)
-            character, mel, mel_input, pos_text, pos_mel, _ = data
-            character = character.to(DEVICE)
-            mel = mel.to(DEVICE)
+            character,  mel_input, pos_text, pos_mel, _ = data
+            character = character.to(DEVICE)            
             mel_input = mel_input.to(DEVICE)
             pos_text = pos_text.to(DEVICE)            
             pos_mel = pos_mel.to(DEVICE)
@@ -53,8 +54,8 @@ def main():
            
             output=modelo(character,mel_input,pos_text,pos_mel)
             # print(output)
-            # if estep==1:
-            #     writer.add_graph(modelo)
+            if estep==1:
+                writer.add_graph(modelo ,input_to_model=[character,mel_input,pos_text,pos_mel])
             
             
             # print("output modelo...."+str(output.shape))
@@ -68,7 +69,7 @@ def main():
             # print("/////////////////")
             # print(np.argmax(output[0].detach().numpy(),axis=1))
             print("loss..........."+str(loss2))
-            print("Epoch.........."+str(epoch))
+            # print("Epoch.........."+str(epoch))
             
             loss.backward()
             optimizer.step()
@@ -76,7 +77,7 @@ def main():
         writer.add_scalar("loss2 :",losses ,epoch)
         if epoch % hp.save_step==0:
             t.save({'model':modelo.state_dict(),
-                                 'optimizer':optimizer.state_dict()},
+                    'optimizer':optimizer.state_dict()},
                                 os.path.join(hp.checkpoint_path,'checkpoint_transformer_%d.pth.tar' % epoch))
     writer.close()
 
