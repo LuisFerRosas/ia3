@@ -156,5 +156,5 @@ def create_mask(src, tgt,PAD_IDX):
 
 def load_checkpoint(checkpoint, model, optimizer):
     print("=> Loading checkpoint")
-    model.load_state_dict(checkpoint["state_dict"])
+    model.load_state_dict(checkpoint["model"])
     optimizer.load_state_dict(checkpoint["optimizer"])

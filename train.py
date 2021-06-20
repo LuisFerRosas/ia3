@@ -75,7 +75,7 @@ def main():
             optimizer.step()
             losses += loss.item()
         writer.add_scalar("loss2 :",losses ,epoch)
-        if epoch % hp.save_step==0:
+        if epoch+1 % hp.save_step==0:
             t.save({'model':modelo.state_dict(),
                     'optimizer':optimizer.state_dict()},
                                 os.path.join(hp.checkpoint_path,'checkpoint_transformer_%d.pth.tar' % epoch))
