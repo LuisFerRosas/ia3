@@ -10,25 +10,24 @@ from utils import get_positional_table, get_sinusoid_encoding_table,create_mask
 from network import TokenEmbedding
 if __name__ == '__main__':
     dataset =get_dataset()
-    dataloader = DataLoader(dataset, batch_size=hp.batch_size, collate_fn=collate_fn_transformer, drop_last=True, )
+    dataloader = DataLoader(dataset, batch_size=1, collate_fn=collate_fn_transformer, drop_last=True, )
     pbar = tqdm(dataloader)
     variabel =next(iter(dataset))
-    # print(variabel['mel'].shape)
+    print(variabel['mel'].shape)
     for i, data in enumerate(pbar):
         
-        character, mel, mel_input, pos_text, pos_mel, _ = data
-        mel_mask, text_mask, mel_padding_mask, text_padding_mask=create_mask(pos_mel,character,0)
+        character,  mel_input, pos_text, pos_mel, _ = data
+        # mel_mask, text_mask, mel_padding_mask, text_padding_mask=create_mask(pos_mel,character,0)
         print("Caracter ////////////////")
         print(character)#[3,47]
-        print("mel ////////////////")
-        print(mel.shape)#[3,1590,80]
+       
         
         print("mel_input ////////////////")
-        print(mel_input.shape)
+        print(mel_input)
         print("pos_text ////////////////"+str(pos_text.shape))#[3,47]
-        print(pos_text.eq(0).unsqueeze(1).repeat(1, character.size(1), 1).shape)
+        print(pos_text)
         print("pos_mel ////////////////")
-        print(pos_mel.shape)#[3,1590]
+        print(pos_mel)#[3,1590]
         # print("_ ////////////////")
         # print(_)
        
