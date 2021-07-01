@@ -8,9 +8,9 @@ import numpy as np
 import collections
 from scipy import signal
 import torch as t
-import math
-from nuevoPreproseced import sequence_partitura,cargarVocabulario
 
+from nuevoPreproseced import sequence_partitura,cargarVocabulario
+from procesing_audio import cargarArchivosNPY
 
 class DatasetsCompleto(Dataset):
     """LJSpeech dataset."""
@@ -49,6 +49,55 @@ class DatasetsCompleto(Dataset):
 
         return sample
     
+
+class DatasetNuevo(Dataset):
+    
+    def __init__(self,  pathPartituras,pathVocabulario,pathArchivoNPY):
+        self.pathPartituras=pathPartituras
+        self.vocabPartitura =cargarVocabulario(pathVocabulario=pathVocabulario)
+        self.waveform,self.nombresAudio=cargarArchivosNPY(pathArchivoNPY)
+
+    def __len__(self):
+        return len(self.nombresAudio)
+
+    def __getitem__(self, idx):
+        wav_name = self.nombresAudio[idx]
+        partitura_tokenizada = np.asarray(sequence_partitura(self.pathPartituras+'/'+wav_name[:-3]+'xml',self.vocabPartitura), dtype=np.int32)
+        wave_mfcc=self.waveform[idx]
+        partitura_length=len(partitura_tokenizada)
+        
+        salida={'partitura_tokenizada':partitura_tokenizada,'wave_mfcc':wave_mfcc,'partitura_length':partitura_length}
+        return salida
+    
+    
+def obtenerDatos(pathPartituras,pathVocabulario,pathArchivoNPY):
+    return DatasetNuevo(pathPartituras=pathPartituras,pathVocabulario=pathVocabulario,pathArchivoNPY=pathArchivoNPY)
+
+
+
+
+def collate_fn_nuevo(batch):
+    if isinstance(batch[0], collections.Mapping):
+        partitura = [d['partitura_tokenizada'] for d in batch]
+        mfcc = [d['wave_mfcc'] for d in batch]
+        partitura_length = [d['partitura_length'] for d in batch]
+        partitura = [i for i,_ in sorted(zip(partitura, partitura_length), key=lambda x: x[1], reverse=True)]
+        partitura = _prepare_data(partitura).astype(np.int64)
+        
+        return t.Tensor(partitura).log(),t.Tensor(mfcc).log()
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     
 def collate_fn_transformer(batch):
