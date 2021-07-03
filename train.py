@@ -5,7 +5,8 @@ from utils import load_checkpoint
 from tensorboardX import SummaryWriter
 import os
 from tqdm import tqdm
-import hyperparams as hp
+
+from preprocess import collate_fn_nuevo, obtenerDatos
 
 load_model = True
 NHEAD=8
@@ -30,8 +31,14 @@ if load_model:
     load_checkpoint(torch.load(checkpoint_path), modelo, optimizer)
 
 
+
 def main():
-    dataset=get_dataset()
+    dataset_train =obtenerDatos(pathPartituras='datos2/partituras',pathVocabulario='datos2/vocabulario2.json',
+                          pathArchivoNPY='archivosnumpy/train_audio_nombre.npy')
+    
+    dataset_valid =obtenerDatos(pathPartituras='datos2/partituras',pathVocabulario='datos2/vocabulario2.json',
+                          pathArchivoNPY='archivosnumpy/train_audio_nombre.npy')
+   
 
 
     modelo.train()
@@ -39,8 +46,8 @@ def main():
    
     estep=0
     for epoch in range(NUM_EPOCHS):
-        dataloader = DataLoader(dataset, batch_size=hp.batch_size, collate_fn=collate_fn_transformer, drop_last=True,shuffle=True )
-        pbar = tqdm(dataloader)
+        dataloader_train = DataLoader(dataset_train, batch_size=1, collate_fn=  collate_fn_nuevo,shuffle=True)
+        pbar = tqdm(dataloader_train)
         losses = 0
         for i, data in enumerate(pbar):
             estep=estep+1
